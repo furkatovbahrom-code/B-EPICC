@@ -264,13 +264,23 @@ TikTok B-EPIC
     <button class="buy">Сатып алу 🛒</button>
   </div>
 
-  <div id="cartModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:2000;justify-content:center;align-items:center;">
-  <div style="background:white;width:90%;max-width:400px;padding:20px;border-radius:15px;color:black;">
-    <h3>Savat</h3>
+<div id="cartModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:2000;justify-content:center;align-items:center;">
+  <div style="background:white;width:90%;max-width:400px;padding:20px;border-radius:15px;color:black;position:relative;">
+    
+    <button onclick="closeCart()" 
+      style="position:absolute;top:10px;right:10px;border:none;background:red;color:white;border-radius:50%;width:30px;height:30px;cursor:pointer;">×</button>
+
+    <h3>Себет</h3>
+
     <div id="cartItems"></div>
-    <h4>Jami: <span id="cartTotal">0</span> ₸</h4>
-    <button id="checkoutBtn" style="width:100%;padding:10px;background:#16a34a;color:white;border:none;border-radius:10px;margin-top:10px;">Buyurtma berish</button>
-    <button onclick="closeCart()" style="width:100%;padding:8px;margin-top:5px;">Yopish</button>
+
+    <h4>Жалпы: <span id="cartTotal">0</span> ₸</h4>
+
+    <button id="checkoutBtn" 
+      style="width:100%;padding:10px;background:#16a34a;color:white;border:none;border-radius:10px;margin-top:10px;">
+      Тапсырыс беру
+    </button>
+
   </div>
 </div>
 
@@ -313,7 +323,7 @@ document.querySelectorAll(".product").forEach(product => {
     }
   };
 
- let cart = [];
+let cart = [];
 
 function updateCart() {
   const cartItems = document.getElementById("cartItems");
@@ -327,7 +337,7 @@ function updateCart() {
     total += item.price * item.count;
     cartItems.innerHTML += `
       <div style="margin-bottom:8px;">
-        ${item.name} x ${item.count} = ${item.price * item.count} ₸
+        ${item.name} × ${item.count} = ${item.price * item.count} ₸
       </div>
     `;
   });
@@ -373,7 +383,7 @@ document.querySelectorAll(".product").forEach(product => {
   buyBtn.onclick = () => {
     cart.push({ name, price, count });
     updateCart();
-    alert("Mahsulot savatga qo‘shildi 🛒");
+    alert("Өнім себетке қосылды 🛒");
   };
 
 });
@@ -381,19 +391,19 @@ document.querySelectorAll(".product").forEach(product => {
 document.getElementById("checkoutBtn").onclick = () => {
 
   if (cart.length === 0) {
-    alert("Savat bo‘sh!");
+    alert("Себет бос!");
     return;
   }
 
-  let message = "Salom! Buyurtma:\n\n";
+  let message = "Сәлеметсіз бе! Тапсырыс:\n\n";
   let total = 0;
 
   cart.forEach(item => {
-    message += `${item.name} x ${item.count} = ${item.price * item.count} ₸\n`;
+    message += `${item.name} × ${item.count} = ${item.price * item.count} ₸\n`;
     total += item.price * item.count;
   });
 
-  message += `\nJami: ${total} ₸`;
+  message += `\nЖалпы: ${total} ₸`;
 
   const phoneNumber = "77752709238";
   const url = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
