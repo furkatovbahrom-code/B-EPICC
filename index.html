@@ -161,26 +161,47 @@
   }
 } 
 
-    .cart-btn {
+ .cart-modal {
+  display: none;
   position: fixed;
-  top: 20px;
-  right: 20px;
-  background: linear-gradient(145deg, #22c55e, #15803d);
-  color: white;
-  padding: 12px 18px;
-  border-radius: 30px;
-  cursor: pointer;
-  z-index: 1000;
-  font-weight: bold;
-  box-shadow: 0 6px 0 #166534,
-              0 8px 15px rgba(0,0,0,0.2);
-  transition: all 0.15s ease;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 2000;
+  justify-content: center;
+  align-items: center;
 }
 
-.cart-btn:active {
-  transform: translateY(4px);
-  box-shadow: 0 2px 0 #166534,
-              0 4px 8px rgba(0,0,0,0.2);
+.cart-box {
+  background: white;
+  width: 90%;
+  max-width: 400px;
+  padding: 20px;
+  border-radius: 15px;
+  position: relative;
+  color: black;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  border: none;
+  background: red;
+  color: white;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+}
+
+.checkout-btn {
+  width: 100%;
+  padding: 10px;
+  background: #16a34a;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  margin-top: 10px;
 }
 
   </style>
@@ -286,11 +307,11 @@ TikTok B-EPIC
     <button class="buy">Сатып алу 🛒</button>
   </div>
 
-<div id="cartModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:2000;justify-content:center;align-items:center;">
-  <div style="background:white;width:90%;max-width:400px;padding:20px;border-radius:15px;color:black;position:relative;">
-    
-    <button onclick="closeCart()" 
-      style="position:absolute;top:10px;right:10px;border:none;background:red;color:white;border-radius:50%;width:30px;height:30px;cursor:pointer;">×</button>
+<div id="cartModal" class="cart-modal">
+
+  <div class="cart-box">
+
+    <button id="closeCartBtn" class="close-btn">×</button>
 
     <h3>Себет</h3>
 
@@ -298,12 +319,12 @@ TikTok B-EPIC
 
     <h4>Жалпы: <span id="cartTotal">0</span> ₸</h4>
 
-    <button id="checkoutBtn" 
-      style="width:100%;padding:10px;background:#16a34a;color:white;border:none;border-radius:10px;margin-top:10px;">
+    <button id="checkoutBtn" class="checkout-btn">
       Тапсырыс беру
     </button>
 
   </div>
+
 </div>
 
 </section>
@@ -347,19 +368,43 @@ document.querySelectorAll(".product").forEach(product => {
 
 let cart = [];
 
-function updateCart() {
-  const cartItems = document.getElementById("cartItems");
-  const cartTotal = document.getElementById("cartTotal");
-  const cartCount = document.getElementById("cartCount");
+const cartModal = document.getElementById("cartModal");
+const cartItems = document.getElementById("cartItems");
+const cartTotal = document.getElementById("cartTotal");
+const cartCount = document.getElementById("cartCount");
+const cartButton = document.getElementById("cartButton");
+const closeCartBtn = document.getElementById("closeCartBtn");
 
+cartButton.onclick = () => {
+  cartModal.style.display = "flex";
+};
+
+closeCartBtn.onclick = () => {
+  cartModal.style.display = "none";
+};
+
+// Fon bosilganda yopiladi
+cartModal.onclick = (e) => {
+  if (e.target === cartModal) {
+    cartModal.style.display = "none";
+  }
+};
+
+function updateCart() {
   cartItems.innerHTML = "";
   let total = 0;
 
-  cart.forEach(item => {
+  cart.forEach((item, index) => {
     total += item.price * item.count;
+
     cartItems.innerHTML += `
-      <div style="margin-bottom:8px;">
+      <div style="margin-bottom:10px;border-bottom:1px solid #ddd;padding-bottom:5px;">
         ${item.name} × ${item.count} = ${item.price * item.count} ₸
+        <br>
+        <button onclick="removeItem(${index})" 
+          style="margin-top:5px;background:red;color:white;border:none;padding:5px 8px;border-radius:5px;cursor:pointer;">
+          Өшіру
+        </button>
       </div>
     `;
   });
@@ -368,12 +413,9 @@ function updateCart() {
   cartCount.textContent = cart.length;
 }
 
-document.getElementById("cartButton").onclick = () => {
-  document.getElementById("cartModal").style.display = "flex";
-};
-
-function closeCart() {
-  document.getElementById("cartModal").style.display = "none";
+function removeItem(index) {
+  cart.splice(index, 1);
+  updateCart();
 }
 
 document.querySelectorAll(".product").forEach(product => {
@@ -403,12 +445,22 @@ document.querySelectorAll(".product").forEach(product => {
   };
 
   buyBtn.onclick = () => {
-    cart.push({ name, price, count });
+
+    // Agar oldin qo‘shilgan bo‘lsa count oshadi
+    const existing = cart.find(item => item.name === name);
+
+    if (existing) {
+      existing.count += count;
+    } else {
+      cart.push({ name, price, count });
+    }
+
     updateCart();
     alert("Өнім себетке қосылды 🛒");
   };
 
 });
+
 
 document.getElementById("checkoutBtn").onclick = () => {
 
