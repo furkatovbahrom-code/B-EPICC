@@ -169,6 +169,10 @@
   <img src="photo_2026-02-13_18-18-27.jpg" alt="B-EPIC Logo">
 </div>
 
+<div id="cartButton" style="position:fixed;top:20px;right:20px;background:#16a34a;color:white;padding:10px 15px;border-radius:20px;cursor:pointer;z-index:1000;">
+🛒 Savat (<span id="cartCount">0</span>)
+</div>
+  
 <header class="header">
   <h1>B-EPIC Shop</h1>
   <p>Қазақстан бойынша сапалы өнімдер</p>
@@ -260,6 +264,16 @@ TikTok B-EPIC
     <button class="buy">Сатып алу 🛒</button>
   </div>
 
+  <div id="cartModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:2000;justify-content:center;align-items:center;">
+  <div style="background:white;width:90%;max-width:400px;padding:20px;border-radius:15px;color:black;">
+    <h3>Savat</h3>
+    <div id="cartItems"></div>
+    <h4>Jami: <span id="cartTotal">0</span> ₸</h4>
+    <button id="checkoutBtn" style="width:100%;padding:10px;background:#16a34a;color:white;border:none;border-radius:10px;margin-top:10px;">Buyurtma berish</button>
+    <button onclick="closeCart()" style="width:100%;padding:8px;margin-top:5px;">Yopish</button>
+  </div>
+</div>
+
 </section>
 
 <a href="https://wa.me/77752709238" class="whatsapp-float">
@@ -299,21 +313,94 @@ document.querySelectorAll(".product").forEach(product => {
     }
   };
 
-  buyBtn.onclick = () => {
-    const total = count * price;
+ let cart = [];
 
-    const message = `Сәлеметсіз бе! Мен ${name} өнімінен ${count} дана алғым келеді. Жалпы баға: ${total} ₸`;
+function updateCart() {
+  const cartItems = document.getElementById("cartItems");
+  const cartTotal = document.getElementById("cartTotal");
+  const cartCount = document.getElementById("cartCount");
 
-    const phoneNumber = "77752709238"; // ОСЫ ЖЕРГЕ ӨЗ НӨМІРІҢДІ ЖАЗ
+  cartItems.innerHTML = "";
+  let total = 0;
 
-    const url = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
+  cart.forEach(item => {
+    total += item.price * item.count;
+    cartItems.innerHTML += `
+      <div style="margin-bottom:8px;">
+        ${item.name} x ${item.count} = ${item.price * item.count} ₸
+      </div>
+    `;
+  });
 
-    window.open(url, "_blank");
+  cartTotal.textContent = total;
+  cartCount.textContent = cart.length;
+}
+
+document.getElementById("cartButton").onclick = () => {
+  document.getElementById("cartModal").style.display = "flex";
+};
+
+function closeCart() {
+  document.getElementById("cartModal").style.display = "none";
+}
+
+document.querySelectorAll(".product").forEach(product => {
+
+  const price = parseInt(product.dataset.price);
+  const name = product.dataset.name;
+  const minus = product.querySelector(".minus");
+  const plus = product.querySelector(".plus");
+  const countEl = product.querySelector(".count");
+  const totalEl = product.querySelector(".total-price");
+  const buyBtn = product.querySelector(".buy");
+
+  let count = 1;
+
+  plus.onclick = () => {
+    count++;
+    countEl.textContent = count;
+    totalEl.textContent = count * price;
   };
 
-if (navigator.userAgent.includes("TikTok")) {
-  alert("WhatsApp ашу үшін сайтты браузерде ашыңыз.");
-}
+  minus.onclick = () => {
+    if (count > 1) {
+      count--;
+      countEl.textContent = count;
+      totalEl.textContent = count * price;
+    }
+  };
+
+  buyBtn.onclick = () => {
+    cart.push({ name, price, count });
+    updateCart();
+    alert("Mahsulot savatga qo‘shildi 🛒");
+  };
+
+});
+
+document.getElementById("checkoutBtn").onclick = () => {
+
+  if (cart.length === 0) {
+    alert("Savat bo‘sh!");
+    return;
+  }
+
+  let message = "Salom! Buyurtma:\n\n";
+  let total = 0;
+
+  cart.forEach(item => {
+    message += `${item.name} x ${item.count} = ${item.price * item.count} ₸\n`;
+    total += item.price * item.count;
+  });
+
+  message += `\nJami: ${total} ₸`;
+
+  const phoneNumber = "77752709238";
+  const url = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
+
+  window.open(url, "_blank");
+};
+
   
 });
 </script>
