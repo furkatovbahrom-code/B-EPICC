@@ -397,27 +397,36 @@ function updateCart() {
   cart.forEach((item, index) => {
     total += item.price * item.count;
 
-    cartItems.innerHTML += `
-      <div style="margin-bottom:10px;border-bottom:1px solid #ddd;padding-bottom:5px;">
-        ${item.name} × ${item.count} = ${item.price * item.count} ₸
-        <br>
-        <button onclick="removeItem(${index})" 
-          style="margin-top:5px;background:red;color:white;border:none;padding:5px 8px;border-radius:5px;cursor:pointer;">
-          Өшіру
-        </button>
-      </div>
-    `;
+    const div = document.createElement("div");
+    div.style.marginBottom = "10px";
+    div.style.borderBottom = "1px solid #ddd";
+    div.style.paddingBottom = "5px";
+
+    div.innerHTML = 
+      ${item.name} × ${item.count} = ${item.price * item.count} ₸
+      <br>
+      <button class="remove-btn" data-index="${index}"
+        style="margin-top:5px;background:red;color:white;border:none;padding:5px 8px;border-radius:5px;cursor:pointer;">
+        Өшіру
+      </button>
+    ;
+
+    cartItems.appendChild(div);
   });
 
   cartTotal.textContent = total;
   cartCount.textContent = cart.length;
-}
 
-function removeItem(index) {
-  cart.splice(index, 1);
-  updateCart();
+  // 🔥 MUHIM QISM
+  document.querySelectorAll(".remove-btn").forEach(btn => {
+    btn.onclick = function() {
+      const i = this.dataset.index;
+      cart.splice(i, 1);
+      updateCart();
+    };
+  });
 }
-
+  
 document.querySelectorAll(".product").forEach(product => {
 
   const price = parseInt(product.dataset.price);
